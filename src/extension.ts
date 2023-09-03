@@ -7,12 +7,12 @@ import { Sidebar } from "./Sidebar";
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	const sidebar = new Sidebar(context.extensionUri);
-	context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(
-          "sfcc-dw-helper-sidebar",
-          sidebar
-        )
-      );
+	  context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        "sfcc-docs-sidebar",
+        sidebar
+      )
+    );
 }
 
 // This method is called when your extension is deactivated

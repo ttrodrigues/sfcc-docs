@@ -1,6 +1,7 @@
 {
   "name": "sfcc-docs",
   "displayName": "SFCC Docs",
+  "publisher": "ttrodrigues",
   "description": "Sidebar panel with SFCC documentations",
   "version": "0.0.1",
   "license": "Open source",
@@ -14,7 +15,7 @@
   "activationEvents": [
     "onView:sfcc-docs-sidebar"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
