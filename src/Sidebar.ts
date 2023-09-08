@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-//import { formatJson, defaultJson, updateProperty, jsonPath, formatConfigurationCodeVersionArray, ocapiGetCodeVersions, quickPickSelectItemDelete, inputboxCreateItem, quickPickSelectItem } from "./helpers/helpers";
-//import { Constants } from "./helpers/constants"
+import { searchOnIndex, buildSearchIndex, updateFavorites } from "./helpers/helpers";
+import { Constants } from "./helpers/constants"
 
+let favoritesArray:any;
 export class Sidebar implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
@@ -10,7 +11,7 @@ export class Sidebar implements vscode.WebviewViewProvider {
   
   constructor(private readonly _extensionUri: vscode.Uri) {}
   
-  public resolveWebviewView(webviewView: vscode.WebviewView) {
+  public async resolveWebviewView(webviewView: vscode.WebviewView) {
     this._view = webviewView;
       
     webviewView.webview.options = {
@@ -20,6 +21,10 @@ export class Sidebar implements vscode.WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+
+    const indexSearch:any = await buildSearchIndex();
+
+    //favoritesArray = indexSearch.pageData
 
     webviewView.webview.onDidReceiveMessage(async (data) => {
       switch (data.type) {
@@ -38,7 +43,35 @@ export class Sidebar implements vscode.WebviewViewProvider {
           vscode.window.showErrorMessage(data.value);
           break;
         }
-            
+
+        case "onSearchQuery": {
+          if (!data.value) {
+            return;
+          }
+          const favorites:any = vscode.workspace.getConfiguration('sfcc-docs').favorites;
+          const searchResults:any = searchOnIndex(data.value, indexSearch.idx, indexSearch.pageData, favorites);
+          webviewView.webview.postMessage({command:"dataJsonCommand", data:searchResults});
+          break;
+        }       
+         
+        case "onUpdateFavorite": {
+          if (!data.value) {
+            return;
+          }
+
+          const [favorite, status]:any = data.value;
+
+          updateFavorites(favorite, status);
+
+          //favoritesArray = 
+          
+          break;
+        }   
+
+
+
+
+        
       }
     });
   }
