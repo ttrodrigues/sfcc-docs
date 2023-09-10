@@ -10,7 +10,8 @@ export function activate(context: vscode.ExtensionContext) {
 	  context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
         "sfcc-docs-sidebar",
-        sidebar
+        sidebar, 
+        { webviewOptions: { retainContextWhenHidden: true } }
       )
     );
 }

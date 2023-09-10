@@ -2,31 +2,63 @@
     // @ts-nocheck
     import { onMount } from 'svelte';
     import ListSearchResults from './ListSearchResults.svelte';
+    import ListFavorites from './ListFavorites.svelte';
+    import CollapsibleSection from './CollapsibleSection.svelte';
     
-    let dataJson:any;
-    let dataJsonLength:number;
-    let successReceiveData:boolean = false;
+    let dataSearchResults:any;
+    let dataSearchResultsLength:number;
+    let successReceiveDataSearchResults:boolean = false;
+
+    let dataFavorites:any;
+    let dataFavoritesLength:number;
+    let successReceiveDataFavorites:boolean = false;
+
+    let dataSearchQuery:string;
+
+    let page: "search" | "detail" = tsvscode.getState()?.page || "search";
+
+    $: {
+        tsvscode.setState({ page });
+    }
  
     onMount(() => {        
         window.addEventListener('message', event => {
             const message = event.data; 
             switch (message.command) {
-                case 'dataJsonCommand':
-                    dataJson = message.data;
-                    dataJsonLength = dataJson.length;
-                    successReceiveData = true;
+                case 'dataSearchResults': {
+                    dataSearchResults = message.data;
+                    dataSearchResultsLength = dataSearchResults.length;
+                    successReceiveDataSearchResults = true;
                     break;
+                }
+                
+                case 'dataFavorites': {
+                    dataFavorites = message.data;
+                    dataFavoritesLength = dataFavorites.length;
+                    //successReceiveDataFavorites = true;
+
+                    break;
+                }
             }
+            console.log(message);
         });  
 
     });
            
     const searchQuery = (input:string) => {   
-        successReceiveData = false;     
+        successReceiveDataSearchResults = false;  
+        dataSearchQuery = input;   
         tsvscode.postMessage({
             type: 'onSearchQuery',
             value: input
         });
+        document.getElementById('search-input').value = '';
+    }
+
+    const clearSearch = () => {
+        successReceiveDataSearchResults = false;  
+        dataSearchResultsLength = 0;
+        dataSearchResults = [];
     }
         
     </script>
@@ -67,28 +99,61 @@
     
 </style>       
 
+<!-- {#if page === 'search'} -->
 <div id="main">
+    
+    <CollapsibleSection headerText={'Search'} expanded={true}>
+    
+        <input on:change={(e)=>{
+            searchQuery(e.target.value);
+        }} type="text" id="search-input">
 
-    <input on:change={(e)=>{
-        searchQuery(e.target.value);
-    }} type="text" id="search-input">
+        {#if dataSearchResultsLength > 0}
+            <div id="search-list">
+                <h5 class="total-results">{dataSearchResultsLength} {dataSearchResultsLength === 1 ? 'match result for' : 'matched results for'} {dataSearchQuery}</h5>
 
-    {#if dataJsonLength > 0}
-        <h5 class="total-results">{dataJsonLength} {dataJsonLength === 1 ? 'match result' : 'matched results'}</h5>
+                <button on:click={() => {
+                    clearSearch();
+                }}>Clear search</button>
 
-        <div id="search-list">
-            <ListSearchResults dataInput={dataJson}>
-            </ListSearchResults>
-        </div>
-    {:else}
-        {#if successReceiveData}
-            <h5 class="total-results">No matched results</h5>
+                <ListSearchResults dataInput={dataSearchResults}>
+                </ListSearchResults>
+            </div>
+        {:else}
+            {#if successReceiveDataSearchResults}
+                <h5 class="total-results">No matched results for {dataSearchQuery}</h5>
+                <button on:click={() => {
+                    clearSearch();
+                }}>Clear search</button>
+
+            {/if}
         {/if}
+    </CollapsibleSection>
+
+
+
+<CollapsibleSection headerText={'Favorites'} expanded={true}>
+    {#if dataFavoritesLength > 0}
+        <ListFavorites dataInput={dataFavorites}>
+        </ListFavorites>        
     {/if}
+</CollapsibleSection>
 
 
-        
-</div>
 
+
+            
+    </div>
+    <!-- <button
+    on:click={() => {
+        page = 'detail';
+    }}>go to contact</button> -->
+<!-- {:else}
+    <div>Contact me here: adlkfjjqioefeqio</div>
+    <button
+        on:click={() => {
+            page = 'search';
+        }}>go back</button>
+{/if} -->
 
 

@@ -1,9 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-import { searchOnIndex, buildSearchIndex, updateFavorites } from "./helpers/helpers";
-import { Constants } from "./helpers/constants"
+import { searchOnIndex, buildSearchIndex, updateFavorites, getFavoritesSendPanel } from "./helpers/helpers";
 
-let favoritesArray:any;
 export class Sidebar implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
@@ -24,7 +22,16 @@ export class Sidebar implements vscode.WebviewViewProvider {
 
     const indexSearch:any = await buildSearchIndex();
 
-    //favoritesArray = indexSearch.pageData
+    getFavoritesSendPanel(webviewView.webview);
+
+    // Listener to changes in Favorites options
+    vscode.workspace.onDidChangeConfiguration(event => {
+      const affectedFavorites:boolean = event.affectsConfiguration("sfcc-docs.favorites");
+        
+      if (affectedFavorites) {
+        getFavoritesSendPanel(webviewView.webview);
+      }
+    })
 
     webviewView.webview.onDidReceiveMessage(async (data) => {
       switch (data.type) {
@@ -50,7 +57,7 @@ export class Sidebar implements vscode.WebviewViewProvider {
           }
           const favorites:any = vscode.workspace.getConfiguration('sfcc-docs').favorites;
           const searchResults:any = searchOnIndex(data.value, indexSearch.idx, indexSearch.pageData, favorites);
-          webviewView.webview.postMessage({command:"dataJsonCommand", data:searchResults});
+          webviewView.webview.postMessage({command:"dataSearchResults", data:searchResults});
           break;
         }       
          
@@ -58,16 +65,23 @@ export class Sidebar implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-
           const [favorite, status]:any = data.value;
-
           updateFavorites(favorite, status);
-
-          //favoritesArray = 
-          
+          getFavoritesSendPanel(webviewView.webview);
+          break;
+        } 
+        
+        case "onRemoveFavorite": {
+          if (!data.value) {
+            return;
+          }
+          updateFavorites(data.value, false);
+          getFavoritesSendPanel(webviewView.webview);
           break;
         }   
 
+
+        
 
 
 
