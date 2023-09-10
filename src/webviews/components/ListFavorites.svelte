@@ -68,11 +68,11 @@
 	.icon-wrapper {
 		display: flex;
 		position: absolute;
-		right: 25px;
+		left: 315px;
 		margin-top: 5px;
 	}
 
 	.list-favorites {
-		min-width: 330px;
+		width: 315px;
 	}
 </style>

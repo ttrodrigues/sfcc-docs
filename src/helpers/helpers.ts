@@ -17,11 +17,11 @@ export async function getSearchIndex () {
   };
 
   await axios(config)
-      .then(function (response:any) {
+      .then((response:any) => {
           result = response.data;
       })
-      .catch(function (error:any) {
-          result = error;
+      .catch( () => {
+          result = null;
       });
 
   return result;
@@ -35,24 +35,31 @@ export async function getSearchIndex () {
  */
 export async function buildSearchIndex () {   
   let data:any = await getSearchIndex();
-  let pageData:any = {};
-  let idx:any = lunr(function () {
-      this.field("title", { boost: 10 });
-      this.field("content");
-      this.ref("url");
-      this.metadataWhitelist = ["position"];
-  
-      // Add the data to the search index
-      data.forEach( (page: any) => {
-        if (page.url && page.title && page.content) {
-          this.add(page);
-          // Store the page data for later use
-          pageData[page.url] = page;
-        }
-      }, this);
-  });   
-  
-  return {idx, pageData};
+
+  if (data) {
+    let pageData:any = {};
+    let idx:any = lunr(function () {
+        this.field("title", { boost: 10 });
+        this.field("content");
+        this.ref("url");
+        this.metadataWhitelist = ["position"];
+    
+        // Add the data to the search index
+        data.forEach( (page: any) => {
+          if (page.url && page.title && page.content) {
+            this.add(page);
+            // Store the page data for later use
+            pageData[page.url] = page;
+          }
+        }, this);
+    });   
+    
+    return {idx, pageData};
+  } else {
+    vscode.window.showErrorMessage(Constants.ERROR_BUILD_SEARCH_INDEX);
+    
+    return null;
+  }
 }
 
 /**
@@ -74,16 +81,7 @@ export function searchOnIndex (query:string, index:any, pageData:any, favorites:
     // Perform the search using Lunr.js
     let results = index.search(searchQuery);
 
-    if (results.length > 0) {
-      // Display the heading and search term
-      // searchResults.innerHTML =
-      //   "<h2>Search Results</h2><p>Showing <b>" +
-      //   results.length +
-      //   '</b> pages that contain "' +
-      //   searchQuery +
-      //   '":</p>';
-
-      
+    if (results.length > 0) {     
       // Loop through the search results and display them
       for (const element of results) {
         let result = element;
@@ -111,14 +109,9 @@ export function searchOnIndex (query:string, index:any, pageData:any, favorites:
         if (start > 0) {
           content = "..." + content;
         }
-      //   if (end < resultPage.content.length) {
-      //     content = content + "...";
-      //   }
-
-        // Highlight the search term in the content
-        // let escapedSearchQuery = searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"); // Escape special characters
-        // let re = new RegExp("(" + escapedSearchQuery + ")", "gi");
-        // content = content.replace(re, "<b>$&</b>");
+        if (end < resultPage.content.length) {
+          content = content + "...";
+        }
 
         // Append the search result as a new list item
         searchResults.title = title.split('&#39;').join('');

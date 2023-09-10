@@ -22,6 +22,10 @@ export class Sidebar implements vscode.WebviewViewProvider {
 
     const indexSearch:any = await buildSearchIndex();
 
+    if (indexSearch === null) {
+      webviewView.webview.postMessage({command:"dataError", data:true});
+    }
+
     getFavoritesSendPanel(webviewView.webview);
 
     // Listener to changes in Favorites options
@@ -78,14 +82,8 @@ export class Sidebar implements vscode.WebviewViewProvider {
           updateFavorites(data.value, false);
           getFavoritesSendPanel(webviewView.webview);
           break;
-        }   
+        }    
 
-
-        
-
-
-
-        
       }
     });
   }

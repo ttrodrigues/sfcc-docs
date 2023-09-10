@@ -3,19 +3,19 @@
     import { onMount } from 'svelte';
     import ListSearchResults from './ListSearchResults.svelte';
     import ListFavorites from './ListFavorites.svelte';
-    import CollapsibleSection from './CollapsibleSection.svelte';
+    import FavoriteMenu from './FavoriteMenu.svelte';
+    import SearchMenu from './SearchMenu.svelte';
     
     let dataSearchResults:any;
     let dataSearchResultsLength:number;
     let successReceiveDataSearchResults:boolean = false;
-
     let dataFavorites:any;
     let dataFavoritesLength:number;
-    let successReceiveDataFavorites:boolean = false;
-
+    let isLoading:boolean = true;
     let dataSearchQuery:string;
+    let dataError:boolean = false;
 
-    let page: "search" | "detail" = tsvscode.getState()?.page || "search";
+    let page: "search" | "favorites" = tsvscode.getState()?.page || "search";
 
     $: {
         tsvscode.setState({ page });
@@ -35,14 +35,16 @@
                 case 'dataFavorites': {
                     dataFavorites = message.data;
                     dataFavoritesLength = dataFavorites.length;
-                    //successReceiveDataFavorites = true;
+                    isLoading = false;
+                    break;
+                }
 
+                case 'dataError': {
+                    dataError = message.data;
                     break;
                 }
             }
-            console.log(message);
         });  
-
     });
            
     const searchQuery = (input:string) => {   
@@ -59,6 +61,13 @@
         successReceiveDataSearchResults = false;  
         dataSearchResultsLength = 0;
         dataSearchResults = [];
+    }
+
+    const updateClass = (classNameAdd, classNameRemove) => {
+        const elementToAdd = document.querySelector(classNameAdd);
+        elementToAdd.classList.add('selected');
+        const elementToRemove = document.querySelector(classNameRemove);
+        elementToRemove.classList.remove('selected');
     }
         
     </script>
@@ -85,75 +94,144 @@
     }
     
     div#main{
-       min-width: 330px;
-       margin-top: 5px;
+       width: 315px;
+       margin-top: 45px;
     }
 
     input#search-input{
        margin-bottom: 10px; 
-       width: 100%;
+       width: 311px;
     }
     .total-results {
         margin: 10px 0;
     }
+
+    .loading-message, .error-message {
+        text-align: center;
+    }
+
+    .buttons-wrapper {
+        height: 45px;
+        display: flex;
+        width: 315px;
+        position: fixed;
+        top: 0;
+        z-index: 999;
+        background-color: var(--vscode-panel-background);
+    }
+
+    .menu-button {
+        width: 50%;
+        padding: 0;
+        color: rgb(92, 92, 92);
+        background-color: transparent;
+        height: 32px;
+    }
+
+    .menu-button:hover {
+        background-color: transparent;
+    }
+
+    .selected {
+        color: white;
+    }
+
+    button {
+        color: var(--vscode-button-foreground); 
+        background-color: var(--vscode-button-background);
+        border: 1px solid var(--vscode-button-border,transparent);
+        cursor: pointer;
+        box-sizing: border-box;  
+        height: 28px;
+    }
+
+    button:hover {
+        background-color: var(--vscode-button-hoverBackground);
+    }
+
+    button:focus {
+      outline: none;
+    } 
     
 </style>       
 
-<!-- {#if page === 'search'} -->
+<div class="buttons-wrapper">
+    <button class="menu-button selected search" on:click={() => { 
+        page = 'search';
+        updateClass('.search', '.favorite');
+        }}>
+        <SearchMenu/>
+    </button> 
+    <button class="menu-button favorite" on:click={() => { 
+        page = 'favorites';
+        updateClass('.favorite', '.search');
+        }}>
+        <FavoriteMenu/>
+    </button> 
+</div>
+
 <div id="main">
-    
-    <CollapsibleSection headerText={'Search'} expanded={true}>
-    
-        <input on:change={(e)=>{
-            searchQuery(e.target.value);
-        }} type="text" id="search-input">
+    {#if dataError}
 
-        {#if dataSearchResultsLength > 0}
-            <div id="search-list">
-                <h5 class="total-results">{dataSearchResultsLength} {dataSearchResultsLength === 1 ? 'match result for' : 'matched results for'} {dataSearchQuery}</h5>
+        <h5 class="error-message">An error occur on build the search index!</h5>
 
-                <button on:click={() => {
-                    clearSearch();
-                }}>Clear search</button>
+    {:else}
 
-                <ListSearchResults dataInput={dataSearchResults}>
-                </ListSearchResults>
-            </div>
+        {#if page === 'search'}
+
+            {#if isLoading} 
+
+                <h5 class="loading-message">Loading search index...</h5>
+
+            {:else}
+        
+                <input on:change={(e)=>{
+                    searchQuery(e.target.value);
+                }} type="text" id="search-input">
+
+                {#if dataSearchResultsLength > 0}
+                    <div id="search-list">
+                        <h5 class="total-results">{dataSearchResultsLength} {dataSearchResultsLength === 1 ? 'match result for' : 'matched results for'} {dataSearchQuery}</h5>
+
+                        <button on:click={() => {
+                            clearSearch();
+                        }}>Clear search</button>
+
+                        <ListSearchResults dataInput={dataSearchResults}>
+                        </ListSearchResults>
+                    </div>
+                {:else}
+
+                    {#if successReceiveDataSearchResults}
+                
+                        <h5 class="total-results">No matched results for {dataSearchQuery}</h5>
+                        <button on:click={() => {
+                            clearSearch();
+                        }}>Clear search</button>
+
+                    {/if}
+
+                {/if}
+                
+            {/if}
+                    
         {:else}
-            {#if successReceiveDataSearchResults}
-                <h5 class="total-results">No matched results for {dataSearchQuery}</h5>
-                <button on:click={() => {
-                    clearSearch();
-                }}>Clear search</button>
+
+            {#if isLoading} 
+
+                <h5 class="loading-message">Loading search index...</h5>
+
+            {:else}
+
+                {#if dataFavoritesLength > 0}
+                    <ListFavorites dataInput={dataFavorites}>
+                    </ListFavorites>        
+                {/if}
 
             {/if}
+
         {/if}
-    </CollapsibleSection>
 
-
-
-<CollapsibleSection headerText={'Favorites'} expanded={true}>
-    {#if dataFavoritesLength > 0}
-        <ListFavorites dataInput={dataFavorites}>
-        </ListFavorites>        
     {/if}
-</CollapsibleSection>
-
-
-
-
             
-    </div>
-    <!-- <button
-    on:click={() => {
-        page = 'detail';
-    }}>go to contact</button> -->
-<!-- {:else}
-    <div>Contact me here: adlkfjjqioefeqio</div>
-    <button
-        on:click={() => {
-            page = 'search';
-        }}>go back</button>
-{/if} -->
-
-
+</div>
