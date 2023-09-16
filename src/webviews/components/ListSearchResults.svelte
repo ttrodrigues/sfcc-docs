@@ -30,6 +30,12 @@
         });
     }
 
+	const openLink = (item) => {
+        tsvscode.postMessage({
+            type: 'onOpenLink',
+            value: item
+        });
+    }
 
 </script>
 
@@ -46,7 +52,9 @@
 					<Star displayMode={item.star}/>
 				{/key}
 			</span>
-			<button class="list-item" data-url={item.url}>
+			<button class="list-item" data-url={item.url} on:click={()=>{
+				openLink([item.title, item.url]);
+			}}>
 				<h4 class="list-title"> #{index + 1} - {item.title}</h4>
 				<p class="list-content">{item.content}</p>
 			</button>

@@ -22,7 +22,7 @@
     }
  
     onMount(() => {        
-        window.addEventListener('message', event => {
+        window.addEventListener('message', (event) => {
             const message = event.data; 
             switch (message.command) {
                 case 'dataSearchResults': {
@@ -45,6 +45,10 @@
                 }
             }
         });  
+
+        if (page === "favorites") {
+            updateClass('.favorite', '.search');
+        }
     });
            
     const searchQuery = (input:string) => {   
@@ -117,7 +121,7 @@
         position: fixed;
         top: 0;
         z-index: 999;
-        background-color: var(--vscode-panel-background);
+        background-color: var(--vscode-sideBar-background);
     }
 
     .menu-button {
@@ -126,6 +130,7 @@
         color: rgb(92, 92, 92);
         background-color: transparent;
         height: 32px;
+        border: none;
     }
 
     .menu-button:hover {
@@ -152,6 +157,10 @@
     button:focus {
       outline: none;
     } 
+
+    #homeLink {
+        display: none;
+    }
     
 </style>       
 

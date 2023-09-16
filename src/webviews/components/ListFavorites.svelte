@@ -10,10 +10,17 @@
         });
     }
 
+	const openLink = (item) => {
+        tsvscode.postMessage({
+            type: 'onOpenLink',
+            value: item
+        });
+    }
+
 </script>
 
 <div class="list-favorites">
-	{#each dataInput as item, index}
+	{#each dataInput as item}
 		<p>
 			<span class="icon-wrapper">
 				<button class="list-icon" id="list-icon" data-url={item.url} data-title={item.title} 
@@ -23,7 +30,9 @@
 				</button>
 				<Star displayMode={true}/>
 			</span>
-			<button class="list-item" data-url={item.url}>
+			<button class="list-item" data-url={item.url} on:click={()=>{
+				openLink([item.title, item.url]);
+			}}>
 				<h4 class="list-title">{item.title}</h4>
 			</button>
 		</p>		
@@ -52,6 +61,8 @@
 	.list-title {
 		text-align:left;
 		color: var(--vscode-editor-foreground);
+		margin-top: 5px;
+    	margin-bottom: 5px;
 	}	
 
 	#list-icon {

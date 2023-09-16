@@ -27,7 +27,6 @@ export async function getSearchIndex () {
   return result;
 }
 
-
 /**
  * Build search index of documentation
  *
@@ -162,3 +161,61 @@ export async function getFavoritesSendPanel (webView:any) {
   const favorites:any = vscode.workspace.getConfiguration('sfcc-docs').favorites;
   webView.postMessage({command:"dataFavorites", data:favorites}); 
 }
+
+/**
+ * Get the page content and create a new tab
+ *
+ * @param title Title of new page 
+ * @param url URL of new page 
+ */
+export async function createNewTabPage (title:string, url:string) {
+  const simpleTitle:string = title.replace(/\s/g, '');
+
+  const panel = vscode.window.createWebviewPanel(
+    simpleTitle,
+    title,
+    vscode.ViewColumn.One,
+    {
+      enableScripts: true,
+    }
+  );
+
+  let result:any;
+  const finalUrl:string = `${Constants.HOST}${url}`;
+  const config:any = {
+      method: 'get',
+      url: finalUrl
+  };
+
+  await axios(config)
+      .then((response:any) => {
+          result = response.data;
+      })
+      .catch( () => {
+          result = null;
+      });
+
+  // Edit DOM content
+  const content = removeTags(result);
+
+  // And set its HTML content
+  panel.webview.html = content;
+}
+
+/**
+ * Edit DOM content
+ *
+ * @param data Original DOM content
+ * @returns New DOM content
+ */
+function removeTags (data:any) {
+  let oldContent:any = data;
+  let newContent:any = data;
+
+  Constants.REG_EX_ARRAY.forEach((rule:any) => {
+    newContent = oldContent.replace(rule, '');
+    oldContent = newContent;
+  });
+
+  return newContent;
+};

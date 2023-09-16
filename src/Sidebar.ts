@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-import { searchOnIndex, buildSearchIndex, updateFavorites, getFavoritesSendPanel } from "./helpers/helpers";
+import { searchOnIndex, buildSearchIndex, updateFavorites, getFavoritesSendPanel, createNewTabPage } from "./helpers/helpers";
 
 export class Sidebar implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -82,7 +82,17 @@ export class Sidebar implements vscode.WebviewViewProvider {
           updateFavorites(data.value, false);
           getFavoritesSendPanel(webviewView.webview);
           break;
-        }    
+        }   
+        
+        case "onOpenLink": {
+          if (!data.value) {
+            return;
+          }
+
+          const [title, url]:any = data.value;
+          createNewTabPage(title, url);       
+          break;
+        }         
 
       }
     });
