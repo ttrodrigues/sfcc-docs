@@ -1,71 +1,40 @@
-# sfcc-docs README
+# SFCC-Docs
 
-This is the README for your extension "sfcc-docs". After writing up a brief description, we recommend including the following sections.
+Small extension to help the **SFCC (SalesForce Commerce Cloud)** developers, to access see and save the favorites documentation articles directly on **VS Code**
+
+&nbsp;
+
+## Why this Extension?
+Simplify the life to **SFCC developers**, with an extension that provides direct access to documentations directly on **VS Code**, where the user can search, open and save the favorite articles for late reading.
+
+The extension uses the user `settings.json` to save the favorites articles, so will be easy to share this information for multiple devices, if the user has the **Settings Sync On**.
+
+On startup of the extension, an search index will be made to guarantee the faster search experience possible. When the user clicks on an article, then will be get the selected article content to be open in a new tab on **VS Code**.
+
+The source for the search and documentations is the recent released new [**Salesforce B2C Developer Documentation Resources**](https://salesforcecommercecloud.github.io/b2c-dev-doc/index.html).
+
+&nbsp;
 
 ## Features
+![](/media/demo.gif)
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+&nbsp;
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+All necessary configurations of the extension will be automatically updated on the user's `settings.json`, when the star button is clicked:
 
-For example:
+* `sfcc-docs.favorites`: Array of objects, where each one has the **Title** and the **URL** of the article saved.
 
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+&nbsp;
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None, until now.
+
+&nbsp;
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+### 0.0.1
+- Initial release
+- Search and save favorites articles of **SalesForce Commerce Cloud documentations** 
