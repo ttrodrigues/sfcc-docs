@@ -102,6 +102,7 @@
 		position: absolute;
 		left: 315px;
 		margin-top: 5px;
+		color: var(--vscode-input-foreground);
 	}
 
 	.search-result{

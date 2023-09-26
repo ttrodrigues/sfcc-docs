@@ -138,7 +138,7 @@
     }
 
     .selected {
-        color: white;
+        color: var(--vscode-input-foreground);
     }
 
     button {
